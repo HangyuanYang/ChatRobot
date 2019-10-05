@@ -1,0 +1,6 @@
+Cboe BZX US Equities Exchange
+US OTC
+NASDAQ
+NYSE American
+New York Stock Exchange
+NYSE Arca
