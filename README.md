@@ -1,6 +1,8 @@
 # ChatRobot
 
-* dependencies:
+* **FinanceHelper** telegram bot can give you some advice about which stock to choose or you can just give your own preference. After you confine the stock with several conditions, just affirm your choice. Then you can choose the information by clicking on the corresponding button.
+
+* python3 Dependencies:
 
   1. rasa_nlu: 
 
@@ -17,10 +19,14 @@
      ~~~
 
   3. sqlite3
+  
+  4. python-telegram-bot
+  
+     ~~~
+     $ pip install python-telegram-bot
+     ~~~
 
-
-
-Usage:
+* Usage:
 
 1. enable the telegram robot to handle messages:
 
