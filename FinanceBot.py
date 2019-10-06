@@ -80,13 +80,13 @@ with open(symbol_file, 'r') as f:
 def find_stocks(params, neg_params):
     query = 'SELECT * FROM company'
     if len(params) > 0 and len(neg_params) > 0:
-        filters = ["{}=?".format(k) for k in params] + ["{}!=?".format(k) for k in neg_params]
+        filters = ["LOWER({})=?".format(k) for k in params] + ["LOWER({})!=?".format(k) for k in neg_params]
         query += " WHERE " + " and ".join(filters)
     elif len(neg_params) > 0:
-        filters = ["{}!=?".format(k) for k in neg_params]
+        filters = ["LOWER({})!=?".format(k) for k in neg_params]
         query += " WHERE " + " and ".join(filters)
     elif len(params) > 0:
-        filters = ["{}=?".format(k) for k in params]
+        filters = ["LOWER({})=?".format(k) for k in params]
         query += " WHERE " + " and ".join(filters)
 
     t = tuple(dict(list(params.items()) + list(neg_params.items())).values())
@@ -141,10 +141,10 @@ def respond(message, params, neg_params, suggestions, excluded):
     # print(intent)
     # print(entities)
     # Look for negated entities
-    negated = negated_ents(message, ent_vals)
+    negated = negated_ents(message.lower(), ent_vals)
 
     response = None
-    if  intent == "deny":
+    if intent == "deny":
         excluded.extend(suggestions)
         if params.__contains__("symbol"):
             if params['symbol'] in excluded:
@@ -170,9 +170,10 @@ def respond(message, params, neg_params, suggestions, excluded):
     if response is not None:
         return response, params, neg_params, suggestions, excluded
 
+    p = find_stocks(params, neg_params)
     # Find the stocks
     results = [r
-               for r in find_stocks(params, neg_params)
+               for r in p
                if r[0] not in excluded
                ]
     names = [r[0] for r in results]
@@ -228,6 +229,15 @@ def respond_state(state, pending, message, params, neg_params, suggestions, excl
         return INIT, None, "Please choose the stock or ask for some recommendation.", {}, {}, [], []
     # intent list ['skip_email','restart','greet','goodbye','ask_stock_advice'
     #  ,'deny','choose_stock','confine' ,'ask_name','affirm','ask_explanation']
+
+    # query info
+    if state == AFFIRMED and message in info_list:
+        response = get_info(message)
+        if type(response) != 'str':
+            response = str(response)
+        response = message + ':\n' + response
+        return state, pending, response, params, neg_params, suggestions, excluded
+
     if intent is None or intent == 'ask_explanation':
         response = respondExplain(state)
     elif intent == 'ask_name':
@@ -245,17 +255,9 @@ def respond_state(state, pending, message, params, neg_params, suggestions, excl
     if response is not None:
         return state, pending, response, params, neg_params, suggestions, excluded
 
-    # query info
     if state == AFFIRMED:
-        if message not in info_list:
-            response = respondExplain(AFFIRMED)
-            return state, pending, response, params, neg_params, suggestions, excluded
-        else:
-            response = get_info(message)
-            if type(response) != 'str':
-                response = str(response)
-            response = message + ':\n' + response
-            return state, pending, response, params, neg_params, suggestions, excluded
+        response = respondExplain(AFFIRMED)
+        return state, pending, response, params, neg_params, suggestions, excluded
 
     if intent == 'ask_stock_advice' or intent == 'choose_stock':
         params, neg_params, suggestions, excluded = {}, {}, [], []
@@ -285,10 +287,13 @@ def respond_state(state, pending, message, params, neg_params, suggestions, excl
 
 
 def start(update, context):
+    global params,neg_params,suggestions,excluded,state,pending
     update.message.reply_text(
         "Hi! I'm FinanceHelper. I hope that I can help you gain some useful information about stock.")
     #    reply_markup=markup
-    state = 0
+    params, neg_params, suggestions, excluded = {}, {}, [], []
+    state = INIT
+    pending = None
 
 
 def error(update, context):
