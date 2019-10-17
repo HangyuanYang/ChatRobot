@@ -4,11 +4,9 @@
 
 #### demo:
 
-<video id="video" controls="" preload="none">
-    <source id="mp4" src="demo.mp4" type="video/mp4">
-</video>
-
-
+<figure class="video_container">
+  <iframe src="https://drive.google.com/open?id=1AdgxW4BezblJCGXUq6Kqpky7rNDQo4S9" frameborder="0" allowfullscreen="true"> </iframe>
+</figure>
 
 * python3 Dependencies:
 
