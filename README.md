@@ -2,6 +2,14 @@
 
 * **FinanceHelper** telegram bot can give you some advice about which stock to choose or you can just give your own preference. After you confine the stock with several conditions, just affirm your choice. Then you can choose the information by clicking on the corresponding button.
 
+#### demo:
+
+<video id="video" controls="" preload="none">
+    <source id="mp4" src="demo.mp4" type="video/mp4">
+</video>
+
+
+
 * python3 Dependencies:
 
   1. rasa_nlu: 
